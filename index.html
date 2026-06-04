@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Trade & Task Bot</title>
+    <title>HM Earn BD</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -11,12 +11,31 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
         }
         body {
-            background-color: #0f172a;
+            background-color: #0b111e;
             color: #ffffff;
+            padding-bottom: 80px;
+        }
+        .header {
+            background: #111a2e;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            border-bottom: 1px solid #1e293b;
+            color: #00bcff;
+        }
+        .page {
+            display: none;
             padding: 15px;
         }
+        .page.active {
+            display: block;
+        }
+        /* Balance Card */
         .balance-card {
             background: linear-gradient(135deg, #1e1b4b, #311042);
             border-radius: 15px;
@@ -26,20 +45,30 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         .balance-title {
-            font-size: 14px;
+            font-size: 13px;
             color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         .balance-amount {
-            font-size: 32px;
+            font-size: 34px;
             font-weight: bold;
-            color: #38bdf8;
+            color: #00bcff;
             margin: 5px 0;
         }
         .withdraw-text {
             font-size: 12px;
             color: #4ade80;
+        }
+        /* Notice & Buttons */
+        .notice-box {
+            background: #162238;
+            border-left: 4px solid #00bcff;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 20px;
         }
         .grid-buttons {
             display: grid;
@@ -48,69 +77,435 @@
             margin-bottom: 25px;
         }
         .action-btn {
-            background: #1e293b;
-            border: 1px solid #334155;
+            background: #111a2e;
+            border: 1px solid #1e293b;
             color: #fff;
             padding: 12px;
             border-radius: 10px;
             font-weight: bold;
+            font-size: 13px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 14px;
         }
+        /* Task Cards */
         .section-title {
             font-size: 16px;
             font-weight: bold;
-            color: #fff;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             border-left: 4px solid #00bcff;
             padding-left: 8px;
         }
         .task-card {
-            background: #1e293b;
-            border-radius: 10px;
+            background: #111a2e;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
             padding: 15px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .task-info {
+            max-width: 70%;
         }
         .task-info p {
             font-size: 13px;
             font-weight: bold;
             color: #fff;
-            margin-bottom: 3px;
-            max-width: 220px;
+            line-height: 1.4;
+            margin-bottom: 4px;
         }
         .task-info span {
             color: #4ade80;
             font-size: 12px;
             font-weight: bold;
         }
-        .join-btn {
+        .task-btn {
             background: #00bcff;
             color: #fff;
             padding: 8px 16px;
             border-radius: 8px;
-            text-decoration: none;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             border: none;
             cursor: pointer;
         }
-        .join-btn:disabled {
-            background: #334155;
+        .task-btn:disabled {
+            background: #1e293b;
             color: #64748b;
             cursor: not-allowed;
+        }
+        /* Package Cards */
+        .pkg-card {
+            background: #111a2e;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .pkg-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #f59e0b;
+            color: #000;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+        .pkg-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .pkg-details {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+        .pkg-details b {
+            color: #4ade80;
+        }
+        /* Deposit Section */
+        .deposit-container {
+            background: #111a2e;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .input-group {
+            margin-bottom: 12px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+        .input-group input {
+            width: 100%;
+            background: #0b111e;
+            border: 1px solid #1e293b;
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+        }
+        .submit-btn {
+            width: 100%;
+            background: #00bcff;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        /* Mine / Profile Section */
+        .profile-info {
+            background: #111a2e;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .profile-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #1e293b;
+            font-size: 13px;
+        }
+        .profile-row:last-child {
+            border-bottom: none;
+        }
+        .profile-label { color: #94a3b8; }
+        .profile-value { color: #fff; font-weight: bold; }
+        
+        /* Bottom Navbar */
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 65px;
+            background: #111a2e;
+            border-top: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: #00bcff;
+        }
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
         }
     </style>
 </head>
 <body>
 
+    <div class="header" id="header-title">HM Earn BD</div>
+
+    <div id="home-page" class="page active">
+        <div class="balance-card">
+            <div class="balance-title">Total Balance</div>
+            <div class="balance-amount">৳<span id="home-balance">0.00</span></div>
+            <div class="withdraw-text">Withdrawable: ৳<span id="home-withdraw">0.00</span></div>
+        </div>
+
+        <div class="notice-box">
+            <b>📢 নোটিশ:</b> আসসালামু আলাইকুম আশা করি ভালো আছেন আমাদের অ্যাপ এ কাজ করুন আপনি ১০০% পেমেন্ট পাবেন আমরা ২৪ ঘন্টা পর পর নতুন নতুন টাস্ক এড করব যাতে আপনাদের প্রতিদিন নিয়মিত ইনকাম করতে সুবিধা হয় ধন্যবাদ।
+        </div>
+
+        <div class="grid-buttons">
+            <button class="action-btn" onclick="switchPage('packages')">💰 Buy Package</button>
+            <button class="action-btn" onclick="switchPage('tasks')">📈 Complete Tasks</button>
+        </div>
+    </div>
+
+    <div id="tasks-page" class="page">
+        <div class="section-title">Earn From Telegram Tasks</div>
+
+        <div class="task-card">
+            <div class="task-info">
+                <p>টেলিগ্রাম গ্রুপে জয়েন করুন এবং ২ টাকা আয় করুন</p>
+                <span>+৳২.০০</span>
+            </div>
+            <button onclick="runLinkTask('https://t.me/dkwincolortreding', this, 2.00)" class="task-btn">Join</button>
+        </div>
+
+        <div class="task-card">
+            <div class="task-info">
+                <p>টেলিগ্রাম গ্রুপে জয়েন করুন এবং দুই টাকা আয় করেন</p>
+                <span>+৳২.০০</span>
+            </div>
+            <button onclick="runLinkTask('https://t.me/colortrendingboss', this, 2.00)" class="task-btn">Join</button>
+        </div>
+
+        <div class="task-card">
+            <div class="task-info">
+                <p>এই লিংকে একাউন্ট খুলুন এবং ৫ টাকা আয় করুন অবশ্যই স্ক্রিনশট জমা দিতে হবে</p>
+                <span>+৳৫.০০</span>
+            </div>
+            <button onclick="runLinkTask('https://playtok.win/app_bd.html?userId=7593775&currency=BDT&from=earncash', this, 5.00)" class="task-btn">Open Link</button>
+        </div>
+
+        <div class="task-card">
+            <div class="task-info">
+                <p>এই লিংকে একাউন্ট খুলুন এবং হোয়াটসঅ্যাপ বাইন করে ১০০ টাকা উত্তোলন করুন তাহলে আর আপনি পাবেন ৩০ টাকা</p>
+                <span>+৳৩০.০০</span>
+            </div>
+            <button onclick="runLinkTask('https://www.banglio.com/home?invite_code=366903', this, 30.00)" class="task-btn">Open Link</button>
+        </div>
+
+        <div class="task-card">
+            <div class="task-info">
+                <p>Task Number 4 Coming Soon</p>
+                <span style="color: #64748b;">🔒 Locked</span>
+            </div>
+            <button class="task-btn" disabled>Soon</button>
+        </div>
+
+        <div class="task-card">
+            <div class="task-info">
+                <p>Task Number 5 Coming Soon</p>
+                <span style="color: #64748b;">🔒 Locked</span>
+            </div>
+            <button class="task-btn" disabled>Soon</button>
+        </div>
+    </div>
+
+    <div id="packages-page" class="page">
+        <div class="section-title">Premium Investment Plans</div>
+
+        <div class="pkg-card">
+            <div class="pkg-badge">7 Days Validity</div>
+            <div class="pkg-title">Package 1</div>
+            <div class="pkg-details">Price: <b>৳২৫০.০০</b><br>Daily Income: <b>৳১১০.০০</b></div>
+            <button onclick="openDeposit(250)" class="task-btn" style="width: 100%;">Buy Now</button>
+        </div>
+
+        <div class="pkg-card">
+            <div class="pkg-badge">7 Days Validity</div>
+            <div class="pkg-title">Package 2</div>
+            <div class="pkg-details">Price: <b>৳৫০০.০০</b><br>Daily Income: <b>৳২১০.০০</b></div>
+            <button onclick="openDeposit(500)" class="task-btn" style="width: 100%;">Buy Now</button>
+        </div>
+
+        <div class="pkg-card">
+            <div class="pkg-badge">7 Days Validity</div>
+            <div class="pkg-title">Package 3</div>
+            <div class="pkg-details">Price: <b>৳১০০০.০০</b><br>Daily Income: <b>৳৪২০.০০</b></div>
+            <button onclick="openDeposit(1000)" class="task-btn" style="width: 100%;">Buy Now</button>
+        </div>
+
+        <div id="deposit-area" class="deposit-container" style="display: none;">
+            <h4 style="color: #00bcff; margin-bottom: 10px; font-size: 14px;">Deposit Gateway</h4>
+            <p style="font-size: 12px; color: #e2e8f0; margin-bottom: 12px; line-height: 1.4;">
+                এই নাম্বারে সেন্ড মানি করে ট্রানজেকশন আইডি বসিয়ে দিন:<br>
+                <b style="color: #f59e0b; font-size: 15px;">bKash/Nagad: 0179075394</b>
+            </p>
+            
+            <div class="input-group">
+                <label>Selected Amount</label>
+                <input type="text" id="dep-amount" readonly>
+            </div>
+            <div class="input-group">
+                <label>Transaction ID (TrxID)</label>
+                <input type="text" id="dep-trxid" placeholder="Enter Transaction ID">
+            </div>
+            <div class="input-group">
+                <label>Upload Screenshot (Optional)</label>
+                <input type="file" accept="image/*" style="padding: 5px;">
+            </div>
+            <button class="submit-btn" onclick="submitDeposit()">SUBMIT</button>
+        </div>
+    </div>
+
+    <div id="mine-page" class="page">
+        <div class="balance-card">
+            <div class="balance-title">Account Balance</div>
+            <div class="balance-amount">৳<span id="mine-balance">0.00</span></div>
+        </div>
+
+        <div class="section-title">User Dashboard</div>
+        <div class="profile-info">
+            <div class="profile-row">
+                <span class="profile-label">Telegram Name</span>
+                <span class="profile-value" id="user-name">Loading...</span>
+            </div>
+            <div class="profile-row">
+                <span class="profile-label">Telegram ID</span>
+                <span class="profile-value" id="user-id">Loading...</span>
+            </div>
+            <div class="profile-row">
+                <span class="profile-label">Active Plan</span>
+                <span class="profile-value" style="color: #f59e0b;" id="active-plan">Free User</span>
+            </div>
+            <div class="profile-row">
+                <span class="profile-label">Total Earned</span>
+                <span class="profile-value" style="color: #4ade80;" id="total-earned">৳০.০০</span>
+            </div>
+        </div>
+
+        <button class="submit-btn" style="background: #ef4444;" onclick="alert('উইথড্র সিস্টেম শীঘ্রই যুক্ত করা হবে!')">💳 WITHDRAW BALANCE</button>
+    </div>
+
+    <div class="navbar">
+        <div class="nav-item active" id="nav-home" onclick="switchPage('home')">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" id="nav-tasks" onclick="switchPage('tasks')">
+            <span class="nav-icon">🎯</span>
+            <span>Tasks</span>
+        </div>
+        <div class="nav-item" id="nav-packages" onclick="switchPage('packages')">
+            <span class="nav-icon">📦</span>
+            <span>Packages</span>
+        </div>
+        <div class="nav-item" id="nav-mine" onclick="switchPage('mine')">
+            <span class="nav-icon">👤</span>
+            <span>Mine</span>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Telegram WebApp
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Load TG user data safely
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
+            document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id;
+        } else {
+            document.getElementById('user-name').innerText = "Guest User";
+            document.getElementById('user-id').innerText = "12345678";
+        }
+
+        let userBalance = 0.00;
+
+        function updateAllBalances() {
+            let formattedBalance = userBalance.toFixed(2);
+            document.getElementById('home-balance').innerText = formattedBalance;
+            document.getElementById('home-withdraw').innerText = formattedBalance;
+            document.getElementById('mine-balance').innerText = formattedBalance;
+            document.getElementById('total-earned').innerText = "৳" + formattedBalance;
+        }
+
+        // Navigation Switching Logic
+        function switchPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            // Deactivate all nav buttons
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+
+            // Show current page & active button
+            document.getElementById(pageId + '-page').classList.add('active');
+            document.getElementById('nav-' + pageId).classList.add('active');
+
+            // Set Header Title
+            let titles = { home: "HM Earn BD", tasks: "Task Section", packages: "Package Menu", mine: "Mine Menu" };
+            document.getElementById('header-title').innerText = titles[pageId];
+        }
+
+        // Task Complete Action
+        function runLinkTask(url, buttonElement, reward) {
+            window.open(url, '_blank');
+            
+            setTimeout(() => {
+                if (buttonElement.innerText === "Claimed") return;
+                userBalance += reward;
+                updateAllBalances();
+                buttonElement.innerText = "Claimed";
+                buttonElement.style.background = "#1e293b";
+                buttonElement.style.color = "#64748b";
+                buttonElement.disabled = true;
+            }, 3000); // 3 seconds simulation time
+        }
+
+        // Open Deposit Area
+        function openDeposit(amount) {
+            document.getElementById('deposit-area').style.display = 'block';
+            document.getElementById('dep-amount').value = "৳" + amount;
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        // Submit Deposit Action
+        function submitDeposit() {
+            let trx = document.getElementById('dep-trxid').value;
+            if(!trx) {
+                alert("দয়া করে সঠিক ট্রানজেকশন আইডি (TrxID) দিন!");
+                return;
+            }
+            alert("আপনার পেমেন্ট রিকোয়েস্টটি সফলভাবে জমা হয়েছে! এডমিন ২৪ ঘণ্টার মধ্যে ভেরিফাই করে প্যাকেজ অ্যাক্টিভ করে দেবে।");
+            document.getElementById('dep-trxid').value = "";
+            document.getElementById('deposit-area').style.display = 'none';
+        }
+
+        // Initial Balance Call
+        updateAllBalances();
+    </script>
+</body>
+</html>
     <div class="balance-card">
         <div class="balance-title">Total Balance</div>
         <div class="balance-amount">৳<span id="user-balance">0.00</span></div>
