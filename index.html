@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HM Earn BD</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        body {
+            background-color: #0b111e;
+            color: #ffffff;
+            padding-bottom: 90px;
+        }
+        .header {
+            background: #111a2e;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            border-bottom: 1px solid #1e293b;
+            color: #00bcff;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .page {
+            display: none;
+            padding: 15px;
+        }
+        .page.active {
+            display: block;
+        }
+        /* Balance Card */
+        .balance-card {
+            background: linear-gradient(135deg, #1e1b4b, #311042);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid #3b0764;
+        }
+        .balance-title {
+            font-size: 13px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .balance-amount {
+            font-size: 36px;
+            font-weight: bold;
+            color: #00bcff;
+            margin: 5px 0;
+        }
+        .withdraw-text {
+            font-size: 12px;
+            color: #4ade80;
+        }
+        /* Notice Box */
+        .notice-box {
+            background: rgba(22, 34, 56, 0.6);
+            border-left: 4px solid #00bcff;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            border: 1px solid #1e293b;
+        }
+        /* Grid Buttons Dashboard */
+        .grid-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .action-btn {
+            background: #111a2e;
+            border: 1px solid #1e293b;
+            color: #fff;
+            padding: 15px 10px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .action-btn:active {
+            background: #1e293b;
+            transform: scale(0.98);
+        }
+        /* Section Header */
+        .section-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #00bcff;
+            padding-left: 8px;
+            color: #94a3b8;
+        }
+        /* Task System Style */
+        .task-card {
+            background: #111a2e;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-info {
+            max-width: 70%;
+        }
+        .task-info p {
+            font-size: 13px;
+            font-weight: bold;
+            color: #fff;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+        .task-info span {
+            color: #4ade80;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .task-btn {
+            background: #00bcff;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+        .task-btn:disabled {
+            background: #1e293b;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+        /* Investment Packages Styling */
+        .pkg-card {
+            background: #111a2e;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .pkg-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #f59e0b;
+            color: #000;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+        .pkg-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .pkg-details {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+        .pkg-details b {
+            color: #4ade80;
+        }
+        /* Popups Custom Modals */
+        .popup-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .popup-content {
+            background: #111a2e;
+            border: 1px solid #1e293b;
+            border-radius: 15px;
+            padding: 22px;
+            width: 100%;
+            max-width: 360px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.6);
+        }
+        .close-popup {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            font-size: 24px;
+            color: #64748b;
+            cursor: pointer;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            background: #0b111e;
+            border: 1px solid #1e293b;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+        }
+        .submit-btn {
+            width: 100%;
+            background: #00bcff;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        /* Stats Grid Inside Modal */
+        .refer-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0 10px 0;
+        }
+        .stat-box {
+            background: #0b111e;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .stat-val {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00bcff;
+        }
+        .stat-lbl {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+        /* Refer Fake Warning Box */
+        .refer-warning-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .refer-warning-text {
+            font-size: 12px;
+            color: #fca5a5;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+        /* Salary Box Style */
+        .salary-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px dashed #f59e0b;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 15px;
+            text-align: left;
+        }
+        /* Profile System */
+        .profile-info {
+            background: #111a2e;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #1e293b;
+        }
+        .profile-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #1e293b;
+            font-size: 13px;
+        }
+        .profile-row:last-child {
+            border-bottom: none;
+        }
+        .profile-label { color: #94a3b8; }
+        .profile-value { color: #fff; font-weight: bold; }
+        
+        /* Bottom Sticky Navbar */
+        .navbar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 65px;
+            background: #111a2e;
+            border-top: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .nav-item.active {
+            color: #00bcff;
+        }
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header" id="header-title">HM Earn BD</div>
+
+    <div id="home-page" class="page active">
+        <div class="balance-card">
+            <div class="balance-title">Total Balance</div>
+            <div class="balance-amount">৳<span id="home-balance">0.00</span></div>
+            <div class="withdraw-text">Withdrawable: ৳<span id="home-withdraw">0.00</span></div>
+        </div>
+
+        <div class="notice-box">
+            <b>📢 নোটিশ:</b> আসসালামু আলাইকুম আশা করি ভালো আছেন আমাদের অ্যাপ এ কাজ করুন আপনি ১০০% পেমেন্ট পাবেন আমরা ২৪ ঘন্টা পর পর নতুন নতুন টাস্ক এড করব যাতে আপনাদের প্রতিদিন নিয়মিত ইনকাম করতে সুবিধা হয় ধন্যবাদ।
+        </div>
+
+        <div class="grid-buttons">
+            <button class="action-btn" onclick="openModal('topup-modal')">💰 Top Up</button>
+            <button class="action-btn" onclick="openModal('refer-modal')">👥 Refer & Earn</button>
+            <button class="action-btn" onclick="openModal('withdraw-modal')">💳 Withdraw</button>
+            <button class="action-btn" onclick="openModal('trade-modal')">📈 Trade Status</button>
+        </div>
+
+        <div class="section-title">Quick Navigation</div>
+        <div class="grid-buttons">
+            <button class="action-btn" style="background: #1e1b4b; border-color: #4338ca;" onclick="switchPage('packages')">📦 Buy Package</button>
+            <button class="action-btn" style="background: #1e293b;" onclick="switchPage('tasks')">🎯 Task Panel</button>
+        </div>
+    </div>
+
+    <div id="tasks-page" class="page">
+        <div class="section-title">Earn From Telegram Tasks</div>
+
+        <div class="task-card">
+            <div class="task-info">
+                <p>টেলিগ্রাম গ্রুপে জয়েন করুন এবং ২ টাকা আয় করুন</p>
+                <span>+৳২.০০</span>
+            </div>
+            <button id="task1-btn" onclick="runLinkTask('https://t.me/dkwincolortreding', 'task1-btn', 2.00)" class="task-btn">Join</button>
+        </div>
+
+        <div class="task-card">
+            <div class="task-info">
+                <p>টেলিগ্রাম গ্রুপে জয়েন করুন এবং দুই টাকা আয় করেন</p>
+                <span>+৳২.০০</span>
+            </div>
+            <button id="task2-btn" onclick="runLinkTask('https://t.me/colortrendingboss', 'task2-btn', 2.00)" class="task-btn">Join</button>
+        </div>
+
+        <div class="task-card">
+            <div class="task-info">
+                <p>এই লিংকে একাউন্ট খুলুন এবং ৫ টাকা আয় করুন অবশ্যই স্ক্রিনশট জমা দিতে হবে</p>
+                <span>+৳৫.০০</span>
+            </div>
+            <button id="task3-btn" onclick="runLinkTask('https://playtok.win/app_bd.html?userId=7593775&currency=BDT&from=earncash', 'task3-btn', 5.00)" class="task-btn">Open Link</button>
+        </div>
+
+        <div class="task-card">
+            <div class="task-info">
+                <p>এই লিংকে একাউন্ট খুলুন এবং হোয়াটসঅ্যাপ বাইন করে ১০০ টাকা উত্তোলন করুন তাহলে আর আপনি পাবেন ৩০ টাকা</p>
+                <span>+৳৩০.০০</span>
+            </div>
+            <button id="task4-btn" onclick="runLinkTask('https://www.banglio.com/home?invite_code=366903', 'task4-btn', 30.00)" class="task-btn">Open Link</button>
+        </div>
+    </div>
+
+    <div id="packages-page" class="page">
+        <div class="section-title">Premium Investment Plans (7 Days)</div>
+
+        <div class="pkg-card">
+            <div class="pkg-badge">7 Days Validity</div>
+            <div class="pkg-title">Package 1</div>
+            <div class="pkg-details">Price: <b>৳২৫০.০০</b><br>Daily Income: <b>৳১১০.০০</b></div>
+            <button onclick="openPackageDeposit(250)" class="task-btn" style="width: 100%;">Buy Now</button>
+        </div>
+
+        <div class="pkg-card">
+            <div class="pkg-badge">7 Days Validity</div>
+            <div class="pkg-title">Package 2</div>
+            <div class="pkg-details">Price: <b>৳৫০০.০০</b><br>Daily Income: <b>৳২১০.০০</b></div>
+            <button onclick="openPackageDeposit(500)" class="task-btn" style="width: 100%;">Buy Now</button>
+        </div>
+
+        <div class="pkg-card">
+            <div class="pkg-badge">7 Days Validity</div>
+            <div class="pkg-title">Package 3</div>
+            <div class="pkg-details">Price: <b>৳১০০০.০০</b><br>Daily Income: <b>৳৪২০.০০</b></div>
+            <button onclick="openPackageDeposit(1000)" class="task-btn" style="width: 100%;">Buy Now</button>
+        </div>
+    </div>
+
+    <div id="mine-page" class="page">
+        <div class="balance-card">
+            <div class="balance-title">Account Balance</div>
+            <div class="balance-amount">৳<span id="mine-balance">0.00</span></div>
+        </div>
+
+        <div class="section-title">User Profile Details</div>
+        <div class="profile-info">
+            <div class="profile-row">
+                <span class="profile-label">Telegram Name</span>
+                <span class="profile-value" id="user-name">Hm Mehedi Hasan</span>
+            </div>
+            <div class="profile-row">
+                <span class="profile-label">Telegram ID</span>
+                <span class="profile-value" id="user-id">7593775</span>
+            </div>
+            <div class="profile-row">
+                <span class="profile-label">Active Plan</span>
+                <span class="profile-value" style="color: #f59e0b;" id="active-plan">Free User</span>
+            </div>
+            <div class="profile-row">
+                <span class="profile-label">Total Earned</span>
+                <span class="profile-value" style="color: #4ade80;" id="total-earned">৳০.০০</span>
+            </div>
+        </div>
+
+        <button class="submit-btn" style="background: #ef4444; margin-bottom: 15px;" onclick="openModal('withdraw-modal')">💳 WITHDRAW BALANCE</button>
+    </div>
+
+
+    <div id="topup-modal" class="popup-modal">
+        <div class="popup-content">
+            <span class="close-popup" onclick="closeModal('topup-modal')">&times;</span>
+            <h4 style="color: #00bcff; margin-bottom: 12px; font-size: 16px;">Top Up Wallet</h4>
+            <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5;">
+                নিচের নাম্বারে টাকা <b>Send Money</b> করুন:<br>
+                💥 <b style="color: #f59e0b; font-size: 16px;">bKash / Nagad: 01793075384</b><br>
+                Type: <span style="background: #ef4444; color: #fff; padding: 2px 6px; font-size: 11px; border-radius: 4px; font-weight: bold;">Personal</span>
+            </p>
+            <div class="input-group">
+                <label>Amount (টাকার পরিমাণ)</label>
+                <input type="number" id="topup-amount" placeholder="কত টাকা পাঠিয়েছেন লিখুন">
+            </div>
+            <div class="input-group">
+                <label>Transaction ID (TrxID)</label>
+                <input type="text" id="topup-trxid" placeholder="ট্রানজেকশন আইডি বসিয়ে দিন">
+            </div>
+            <button class="submit-btn" onclick="submitTopUp()">SUBMIT PAY</button>
+        </div>
+    </div>
+
+    <div id="refer-modal" class="popup-modal">
+        <div class="popup-content" style="text-align: center;">
+            <span class="close-popup" onclick="closeModal('refer-modal')">&times;</span>
+            <h4 style="color: #00bcff; margin-bottom: 10px; font-size: 16px;">Refer & Earn</h4>
+            <p style="font-size: 12px; color: #cbd5e1; line-height: 1.4;">
+                প্রতিটি রেফারে পাবেন <b style="color: #4ade80;">৳১৫.০০</b> বোনাস! আপনার বন্ধু যখন আপনার লিংকে প্রবেশ করে সফলভাবে <b>২টি টাস্ক</b> কমপ্লিট করবে, তখন আপনার অ্যাকাউন্টে টাকা যোগ হবে।
+            </p>
+            
+            <div class="refer-stats-grid">
+                <div class="stat-box">
+                    <div class="stat-val" id="total-refers">0</div>
+                    <div class="stat-lbl">মোট রেফারেল</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" id="active-refers">0</div>
+                    <div class="stat-lbl">সক্রিয় রেফার কাউন্ট</div>
+                </div>
+            </div>
+
+            <div class="refer-warning-box">
+                <span>⚠️</span>
+                <div class="refer-warning-text">
+                    <b>ফেক রেফার করা থেকে বিরত থাকুন</b>, অন্যথায় আপনার উইড্র অপশন ক্যানসেল হয়ে যাবে।
+                </div>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="refer-link-box" readonly style="text-align: center; color: #4ade80; font-weight: bold; background: #0b111e;">
+            </div>
+            <button class="submit-btn" style="margin-bottom: 5px;" onclick="copyReferLink()">COPY REFER LINK</button>
+
+            <div class="salary-box">
+                <h5 style="color: #f59e0b; font-size: 13px; margin-bottom: 4px;">💼 রেফারেল সেলারি বোনাস</h5>
+                <p style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-bottom: 8px;">
+                    <b>শর্ত:</b> আপনার মোট ২৫টি রেফারেল যখন সক্রিয় (Active) থাকবে, তখন আপনি প্রতি মাসে <b>৳৫০০.০০</b> ফিক্সড সেলারি পাবেন।
+                </p>
+                <button id="salary-btn" class="task-btn" style="width: 100%; background: #1e293b; color: #64748b;" onclick="claimSalary()" disabled>Claim Salary (0/25)</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="withdraw-modal" class="popup-modal">
+        <div class="popup-content">
+            <span class="close-popup" onclick="closeModal('withdraw-modal')">&times;</span>
+            <h4 style="color: #ef4444; margin-bottom: 6px; font-size: 16px;">Withdraw Request</h4>
+            <p style="font-size: 12px; color: #f59e0b; margin-bottom: 12px; font-weight: bold; text-align: center;">
+                ⚠️ সর্বনিম্ন উত্তোলন: ৳১০০ | সর্বোচ্চ উত্তোলন: ৳১০,০০০
+            </p>
+            
+            <div class="input-group">
+                <label>সিলেক্ট মেথড (Select Method)</label>
+                <select id="withdraw-method">
+                    <option value="bKash">bKash (Personal)</option>
+                    <option value="Nagad">Nagad (Personal)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>বিকাশ / নগদ নাম্বার (Account Number)</label>
+                <input type="number" id="withdraw-number" placeholder="আপনার নাম্বারটি লিখুন">
+            </div>
+            <div class="input-group">
+                <label>উত্তোলনের পরিমাণ (Amount)</label>
+                <input type="number" id="withdraw-amount" placeholder="কত টাকা উত্তোলন করতে চান?">
+            </div>
+            <button class="submit-btn" style="background: #ef4444;" onclick="submitWithdraw()">SUBMIT WITHDRAW</button>
+        </div>
+    </div>
+
+    <div id="trade-modal" class="popup-modal">
+        <div class="popup-content" style="text-align: center;">
+            <span class="close-popup" onclick="closeModal('trade-modal')">&times;</span>
+            <h4 style="color: #4ade80; margin-bottom: 10px;">📊 Market Trade Status</h4>
+            <div style="background: #0b111e; padding: 20px; border-radius: 10px; margin: 15px 0; border: 1px solid #1e293b;">
+                <p style="font-size: 13px; color: #94a3b8;">AI Trading Bot Processing</p>
+                <h3 style="color: #4ade80; font-size: 24px; margin: 8px 0;">+4.12% Profit</h3>
+                <div style="width: 100%; background: #1e293b; height: 6px; border-radius: 5px; overflow: hidden;">
+                    <div style="width: 85%; background: #4ade80; height: 100%;"></div>
+                </div>
+            </div>
+            <p style="font-size: 12px; color: #64748b;">Boundary limits match trading algorithms.</p>
+        </div>
+    </div>
+
+    <div class="navbar">
+        <div class="nav-item active" id="nav-home" onclick="switchPage('home')">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" id="nav-tasks" onclick="switchPage('tasks')">
+            <span class="nav-icon">🎯</span>
+            <span>Tasks</span>
+        </div>
+        <div class="nav-item" id="nav-packages" onclick="switchPage('packages')">
+            <span class="nav-icon">📦</span>
+            <span>Packages</span>
+        </div>
+        <div class="nav-item" id="nav-mine" onclick="switchPage('mine')">
+            <span class="nav-icon">👤</span>
+            <span>Mine</span>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let userBalance = parseFloat(localStorage.getItem('hm_balance')) || 0.00; 
+        let referCount = parseInt(localStorage.getItem('hm_total_refers')) || 0;
+        let activeReferCount = parseInt(localStorage.getItem('hm_active_refers')) || 0;
+
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
+            document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id;
+            document.getElementById('refer-link-box').value = "https://t.me/hm_earnbd_bot/earn?startapp=" + tg.initDataUnsafe.user.id;
+        } else {
+            document.getElementById('refer-link-box').value = "https://t.me/hm_earnbd_bot/earn?startapp=7593775";
+        }
+
+        function updateAllBalances() {
+            let formatted = userBalance.toFixed(2);
+            document.getElementById('home-balance').innerText = formatted;
+            document.getElementById('home-withdraw').innerText = formatted;
+            document.getElementById('mine-balance').innerText = formatted;
+            document.getElementById('total-earned').innerText = "৳" + formatted;
+            
+            document.getElementById('total-refers').innerText = referCount;
+            document.getElementById('active-refers').innerText = activeReferCount;
+            
+            let salaryBtn = document.getElementById('salary-btn');
+            salaryBtn.innerText = `Claim Salary (${activeReferCount}/25)`;
+            if(activeReferCount >= 25) {
+                salaryBtn.style.background = "#f59e0b";
+                salaryBtn.style.color = "#000";
+                salaryBtn.disabled = false;
+            } else {
+                salaryBtn.style.background = "#1e293b";
+                salaryBtn.style.color = "#64748b";
+                salaryBtn.disabled = true;
+            }
+
+            localStorage.setItem('hm_balance', userBalance);
+            localStorage.setItem('hm_total_refers', referCount);
+            localStorage.setItem('hm_active_refers', activeReferCount);
+        }
+
+        function switch
