@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Trade & Task Bot</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 15px;
+        }
+        .balance-card {
+            background: linear-gradient(135deg, #1e1b4b, #311042);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .balance-title {
+            font-size: 14px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .balance-amount {
+            font-size: 32px;
+            font-weight: bold;
+            color: #38bdf8;
+            margin: 5px 0;
+        }
+        .withdraw-text {
+            font-size: 12px;
+            color: #4ade80;
+        }
+        .grid-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .action-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 12px;
+            border-left: 4px solid #00bcff;
+            padding-left: 8px;
+        }
+        .task-card {
+            background: #1e293b;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .task-info p {
+            font-size: 13px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 3px;
+            max-width: 220px;
+        }
+        .task-info span {
+            color: #4ade80;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .join-btn {
+            background: #00bcff;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+        .join-btn:disabled {
+            background: #334155;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="balance-card">
+        <div class="balance-title">Total Balance</div>
+        <div class="balance-amount">৳<span id="user-balance">0.00</span></div>
+        <div class="withdraw-text">Withdrawable: ৳<span id="withdraw-balance">0.00</span></div>
+    </div>
+
+    <div class="grid-buttons">
+        <button class="action-btn" onclick="showTopup()">💰 Top Up</button>
+        <button class="action-btn" onclick="showRefer()">👥 Refer & Earn</button>
+        <button class="action-btn" onclick="showWithdraw()">💳 Withdraw</button>
+        <button class="action-btn">📈 Trade Status</button>
+    </div>
+
+    <div class="section-title">Telegram Tasks</div>
+    
+    <div class="task-card">
+        <div class="task-info">
+            <p>প্রথম চ্যানেলটি হচ্ছে এটি যোগদান করলে আপনি পাবেন দুই টাকা</p>
+            <span>+৳২.০০</span>
+        </div>
+        <button onclick="openTask('https://t.me/colortrendingboss', this, 2.00)" class="join-btn">Join</button>
+    </div>
+
+    <div class="task-card">
+        <div class="task-info">
+            <p>দ্বিতীয় নাম্বারটি হচ্ছে এটা ডেপিটি যোগদান করলে আপনি পাবেন দুই টাকা</p>
+            <span>+৳২.০০</span>
+        </div>
+        <button onclick="openTask('https://t.me/dkwincolortreding', this, 2.00)" class="join-btn">Join</button>
+    </div>
+
+    <div class="task-card">
+        <div class="task-info">
+            <p>তৃতীয় নাম্বারটি হচ্ছে এটা জিতিতে যোগদান করলে আপনি ভাবেন এক টাকা</p>
+            <span>+৳১.০০</span>
+        </div>
+        <button onclick="openTask('https://t.me/withdrawchenall', this, 1.00)" class="join-btn">Join</button>
+    </div>
+
+    <div style="margin-top: 20px;" class="section-title">Micro Jobs</div>
+    <div class="task-card">
+        <div class="task-info">
+            <p>Watch 1 Minute Video</p>
+            <span>+৳০.২০</span>
+        </div>
+        <button class="join-btn">Complete</button>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let currentBalance = 0.00;
+
+        function updateDisplay() {
+            document.getElementById('user-balance').innerText = currentBalance.toFixed(2);
+            document.getElementById('withdraw-balance').innerText = currentBalance.toFixed(2);
+        }
+
+        function openTask(url, buttonElement, reward) {
+            window.open(url, '_blank');
+            
+            setTimeout(() => {
+                if (buttonElement.innerText === "Claimed") return;
+                currentBalance += reward;
+                updateDisplay();
+                buttonElement.innerText = "Claimed";
+                buttonElement.style.background = "#334155";
+                buttonElement.style.color = "#64748b";
+                buttonElement.disabled = true;
+            }, 2000);
+        }
+
+        function showTopup() { alert("Top Up Section Coming Soon!"); }
+        function showWithdraw() { alert("Withdraw Section Coming Soon!"); }
+        function showRefer() { alert("Refer Section Coming Soon!"); }
+    </script>
+</body>
+</html>
